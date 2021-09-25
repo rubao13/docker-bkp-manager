@@ -1,0 +1,43 @@
+version: "3.6"
+
+services:
+  mongo:
+    image: mongo:5.0.2
+    container_name: devops_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: s3cr3t
+    volumes:
+      - mongo_data:/data/db:rw
+
+  backup-manager:
+    image: backup-manager:local
+    container_name: devops_backup_manager
+    environment:
+      MONGO_ROOT_USERNAME: admin
+      MONGO_ROOT_PASSWORD: s3cr3t
+      MONGO_HOST: mongo
+      RESET: "false"
+      # interval is in minutes
+      BACKUP_INTERVAL: 2
+    volumes:
+      - backup_local:/data:rw
+      #customize the host desired data diretory 
+      - mongo_data:/data/db:rw
+
+
+# Feel free to change the locations to a persistent location if you prefer
+volumes:
+  backup_local:
+    driver: local
+    driver_opts:
+      o: bind
+      device: "/tmp/backup_local"
+      type: none
+  mongo_data:
+    driver: local
+    driver_opts:
+      o: bind
+      device: "/tmp/mongo_data"
+      type: none
+
